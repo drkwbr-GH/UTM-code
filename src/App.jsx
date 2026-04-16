@@ -23,6 +23,8 @@ function slugify(input) {
     .slice(0, 80);
 }
 
+// De campagne (utm_campaign) gebruik je om nieuwsbrief-edities te groeperen in Analytics.
+// Door deze aan/uit te kunnen zetten, kun je kiezen of je dit niveau van detail wilt meten.
 function getTodayCampaign() {
   const now = new Date();
   const year = now.getFullYear();
@@ -34,7 +36,8 @@ function getTodayCampaign() {
 export default function App() {
   const [baseUrl, setBaseUrl] = useState("");
   const [campaign, setCampaign] = useState(getTodayCampaign());
-  const [includeCampaign, setIncludeCampaign] = useState(true);
+  // utm_campaign is altijd actief
+  const includeCampaign = true;
 
   const normalizedContent = useMemo(() => {
     try {
@@ -52,7 +55,7 @@ export default function App() {
       utm_source: "website",
       utm_medium: "referral",
     };
-    if (includeCampaign && campaign) params.utm_campaign = slugify(campaign);
+    if (campaign) params.utm_campaign = slugify(campaign);
     if (normalizedContent) params.utm_content = normalizedContent;
     return appendUtm(baseUrl, params);
   }, [baseUrl, campaign, includeCampaign, normalizedContent]);
@@ -62,7 +65,7 @@ export default function App() {
       utm_source: "linkedin",
       utm_medium: "social",
     };
-    if (includeCampaign && campaign) params.utm_campaign = slugify(campaign);
+    if (campaign) params.utm_campaign = slugify(campaign);
     if (normalizedContent) params.utm_content = normalizedContent;
     return appendUtm(baseUrl, params);
   }, [baseUrl, campaign, includeCampaign, normalizedContent]);
@@ -72,7 +75,7 @@ export default function App() {
       utm_source: "newsletter",
       utm_medium: "email",
     };
-    if (includeCampaign && campaign) params.utm_campaign = slugify(campaign);
+    if (campaign) params.utm_campaign = slugify(campaign);
     if (normalizedContent) params.utm_content = normalizedContent;
     return appendUtm(baseUrl, params);
   }, [baseUrl, campaign, includeCampaign, normalizedContent]);
@@ -90,7 +93,7 @@ export default function App() {
   const reset = () => {
     setBaseUrl("");
     setCampaign(getTodayCampaign());
-    setIncludeCampaign(true);
+    
   };
 
   return (
@@ -124,15 +127,7 @@ export default function App() {
             onChange={(e) => setCampaign(e.target.value)}
           />
 
-          <label className="checkbox-row" htmlFor="includeCampaign">
-            <input
-              id="includeCampaign"
-              type="checkbox"
-              checked={includeCampaign}
-              onChange={(e) => setIncludeCampaign(e.target.checked)}
-            />
-            UTM-campagne toevoegen
-          </label>
+          
 
           <button className="secondary" onClick={reset}>
             Reset
