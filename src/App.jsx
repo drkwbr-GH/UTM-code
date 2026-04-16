@@ -122,7 +122,7 @@ export default function App() {
               <input
                 id="contentName"
                 type="text"
-                placeholder="jamf_nation_meet_up"
+                placeholder="titel-van-bericht"
                 value={contentName}
                 onChange={(e) => setContentName(e.target.value)}
               />
