@@ -23,13 +23,20 @@ function slugify(input) {
     .slice(0, 80);
 }
 
+function getTodayCampaign() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `nieuwsbrief-${year}-${month}-${day}`;
+}
+
 export default function App() {
   const [baseUrl, setBaseUrl] = useState("");
-  const [campaign, setCampaign] = useState("");
-  const [contentName, setContentName] = useState("");
+  const [campaign, setCampaign] = useState(getTodayCampaign());
   const [includeCampaign, setIncludeCampaign] = useState(true);
 
-  const autoContentFromUrl = useMemo(() => {
+  const normalizedContent = useMemo(() => {
     try {
       const url = new URL(baseUrl);
       const parts = url.pathname.split("/").filter(Boolean);
@@ -39,11 +46,6 @@ export default function App() {
       return "";
     }
   }, [baseUrl]);
-
-  const normalizedContent = useMemo(() => {
-    if (contentName) return slugify(contentName);
-    return autoContentFromUrl;
-  }, [contentName, autoContentFromUrl]);
 
   const externalWebsiteUrl = useMemo(() => {
     const params = {
@@ -87,8 +89,7 @@ export default function App() {
 
   const reset = () => {
     setBaseUrl("");
-    setCampaign("");
-    setContentName("");
+    setCampaign(getTodayCampaign());
     setIncludeCampaign(true);
   };
 
@@ -114,33 +115,24 @@ export default function App() {
             onChange={(e) => setBaseUrl(e.target.value)}
           />
 
-          <label htmlFor="campaign">Campagnenaam (optioneel)</label>
+          <label htmlFor="campaign">Campagnenaam voor nieuwsbrief</label>
           <input
             id="campaign"
             type="text"
-            placeholder="bijv-dagelijks-of-weekoverzicht"
+            placeholder="nieuwsbrief-jjjj-mm-dd"
             value={campaign}
             onChange={(e) => setCampaign(e.target.value)}
           />
 
-          <label htmlFor="contentName">Optioneel: contentnaam</label>
-          <input
-            id="contentName"
-            type="text"
-            placeholder="de-leesbare-titel-van-je-artikel-uit-de-url"
-            value={contentName}
-            onChange={(e) => setContentName(e.target.value)}
-          />
-
-          <label htmlFor="includeCampaign">utm_campaign opnemen</label>
-          <select
-            id="includeCampaign"
-            value={includeCampaign ? "ja" : "nee"}
-            onChange={(e) => setIncludeCampaign(e.target.value === "ja")}
-          >
-            <option value="ja">Ja</option>
-            <option value="nee">Nee</option>
-          </select>
+          <label className="checkbox-row" htmlFor="includeCampaign">
+            <input
+              id="includeCampaign"
+              type="checkbox"
+              checked={includeCampaign}
+              onChange={(e) => setIncludeCampaign(e.target.checked)}
+            />
+            UTM-campagne toevoegen
+          </label>
 
           <button className="secondary" onClick={reset}>
             Reset
@@ -166,7 +158,7 @@ export default function App() {
             <h2>LinkedIn</h2>
             <p className="small">
               Bron = linkedin, medium = social. Content wordt automatisch uit de
-              URL gehaald als je niets invult.
+              URL gehaald.
             </p>
             <div className="output">
               {linkedinUrl || "Voer eerst een geldige URL in"}
@@ -180,7 +172,8 @@ export default function App() {
             <h2>Nieuwsbrief</h2>
             <p className="small">
               Bron = newsletter, medium = email. Content wordt automatisch uit
-              de URL gehaald als je niets invult.
+              de URL gehaald. Campagnenaam staat standaard op nieuwsbrief met
+              verzenddatum.
             </p>
             <div className="output">
               {newsletterUrl || "Voer eerst een geldige URL in"}
@@ -207,12 +200,12 @@ export default function App() {
               utm_medium=email
             </li>
             <li>
-              <strong>utm_campaign:</strong> optioneel, bijvoorbeeld dagelijks
-              of weekoverzicht
+              <strong>utm_campaign:</strong> standaard nieuwsbrief met
+              verzenddatum, bijvoorbeeld nieuwsbrief-2026-04-16
             </li>
             <li>
-              <strong>utm_content:</strong> automatisch uit de URL, of handmatig
-              invulbaar
+              <strong>utm_content:</strong> automatisch uit de URL van het
+              artikel
             </li>
           </ul>
         </div>
